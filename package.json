@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://fakhar98.github.io/E-commerce-Pick-n-Pay",
+  "homepage": "https://fakhar98.github.io/",
   "scripts": {
     "build": "vite build",
     "predeploy": "npm run build",
