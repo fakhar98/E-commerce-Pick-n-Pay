@@ -1,11 +1,13 @@
 {
-  "name": "package.json",
+  "name": "pick-n-pay-ecommerce",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://fakhar98.github.io/",
   "scripts": {
+    "dev": "vite",
     "build": "vite build",
+    "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },

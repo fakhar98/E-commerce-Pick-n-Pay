@@ -5,23 +5,76 @@ import Footer from './components/Footer';
 import Home from './Home';
 import Products from './Products';
 
-const App = () => {
-  const [cartCount, setCartCount] = React.useState(0);
-  const [showCart, setShowCart] = React.useState(false);
-  const [cart, setCart] = React.useState([]);
+// --- Cart Page Component ---
+const Cart = ({ cart, setCart }) => {
+  const handleQuantity = (idx, delta) => {
+    setCart(prev =>
+      prev.map((item, i) =>
+        i === idx
+          ? { ...item, quantity: Math.max(1, (item.quantity || 1) + delta) }
+          : item
+      )
+    );
+  };
 
-  const addToCart = (product) => {
-    setCart((prev) => [...prev, product]);
-    setCartCount((prev) => prev + 1);
+  const handleRemove = idx => {
+    setCart(prev => prev.filter((_, i) => i !== idx));
   };
 
   return (
+    <div className="container mt-4" style={{ maxWidth: 600 }}>
+      <h2>Cart Items</h2>
+      <div className="border rounded p-3 mt-3">
+        {cart.length === 0 ? (
+          <p>Your cart is empty.</p>
+        ) : (
+          <ul className="list-group">
+            {cart.map((item, idx) => (
+              <li className="list-group-item d-flex justify-content-between align-items-center" key={idx}>
+                <span>
+                  {item.name}
+                  <span className="mx-3">
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => handleQuantity(idx, -1)}>-</button>
+                    <span className="mx-2">{item.quantity || 1}</span>
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => handleQuantity(idx, 1)}>+</button>
+                  </span>
+                </span>
+                <button className="btn btn-sm btn-danger" onClick={() => handleRemove(idx)}>Remove</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
+// --- End Cart Page Component ---
+
+const App = () => {
+  const [cart, setCart] = React.useState([]);
+
+  const addToCart = (product) => {
+    setCart((prev) => {
+      const idx = prev.findIndex(item => item.name === product.name);
+      if (idx > -1) {
+        return prev.map((item, i) =>
+          i === idx ? { ...item, quantity: (item.quantity || 1) + 1 } : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  };
+
+  const cartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+  return (
     <Router>
-      <Navbar cartCount={cartCount} onCartClick={() => setShowCart(true)} />
+      <Navbar cartCount={cartCount} />
       <div style={{marginTop: '1rem', minHeight: '80vh'}}>
         <Routes>
-          <Route path="/" element={<Home setCartCount={setCartCount} showCart={showCart} setShowCart={setShowCart} />} />
+          <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products addToCart={addToCart} />} />
+          <Route path="/cart" element={<Cart cart={cart} setCart={setCart} />} />
           <Route path="/about" element={
             <div className="container mt-4">
               <h2>About Pick n Pay</h2>
@@ -58,27 +111,6 @@ const App = () => {
             </div>
           } />
         </Routes>
-        {/* Cart Modal/Page (shared for all pages) */}
-        {showCart && (
-          <div className="position-fixed top-0 start-0 w-100 h-100" style={{background: 'rgba(0,0,0,0.4)', zIndex: 2000}} onClick={() => setShowCart(false)}>
-            <div className="bg-white rounded shadow p-4 position-absolute" style={{top: '10%', left: '50%', transform: 'translateX(-50%)', minWidth: 320, maxWidth: 400}} onClick={e => e.stopPropagation()}>
-              <h4>Cart</h4>
-              {cart.length === 0 ? (
-                <p>Your cart is empty.</p>
-              ) : (
-                <ul className="list-group mb-3">
-                  {cart.map((item, idx) => (
-                    <li className="list-group-item d-flex justify-content-between align-items-center" key={idx}>
-                      <span>{item.name}</span>
-                      <button className="btn btn-sm btn-danger" onClick={() => setCart(cart.filter((_, i) => i !== idx))}>Remove</button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <button className="btn btn-secondary w-100" onClick={() => setShowCart(false)}>Close</button>
-            </div>
-          </div>
-        )}
       </div>
       <Footer />
     </Router>

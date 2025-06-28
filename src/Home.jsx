@@ -76,23 +76,11 @@ const products = [
   },
 ];
 
-const Home = ({ setCartCount, showCart, setShowCart }) => {
+const Home = ({ addToCart }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    setCartCount(cart.length);
-  }, [cart, setCartCount]);
-
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? featuredProducts.length - 1 : prev - 1));
-  };
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev === featuredProducts.length - 1 ? 0 : prev + 1));
-  };
-
-  React.useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev === featuredProducts.length - 1 ? 0 : prev + 1));
     }, 3000);
@@ -105,10 +93,6 @@ const Home = ({ setCartCount, showCart, setShowCart }) => {
   const filteredProducts = selectedCategory === 'All'
     ? products
     : products.filter(product => product.category === selectedCategory);
-
-  const addToCart = (product) => {
-    setCart((prev) => [...prev, product]);
-  };
 
   return (
     <div className="container mt-4 position-relative">
@@ -123,11 +107,11 @@ const Home = ({ setCartCount, showCart, setShowCart }) => {
             </div>
           ))}
         </div>
-        <button className={`carousel-control-prev ${btnClass}`} type="button" onClick={handlePrev} style={{filter: btnClass === 'carousel-control-dark' ? 'invert(1)' : 'none'}}>
+        <button className={`carousel-control-prev ${btnClass}`} type="button" onClick={() => setActiveIndex((prev) => (prev === 0 ? featuredProducts.length - 1 : prev - 1))} style={{filter: btnClass === 'carousel-control-dark' ? 'invert(1)' : 'none'}}>
           <span className="carousel-control-prev-icon" aria-hidden="true"></span>
           <span className="visually-hidden">Previous</span>
         </button>
-        <button className={`carousel-control-next ${btnClass}`} type="button" onClick={handleNext} style={{filter: btnClass === 'carousel-control-dark' ? 'invert(1)' : 'none'}}>
+        <button className={`carousel-control-next ${btnClass}`} type="button" onClick={() => setActiveIndex((prev) => (prev === featuredProducts.length - 1 ? 0 : prev + 1))} style={{filter: btnClass === 'carousel-control-dark' ? 'invert(1)' : 'none'}}>
           <span className="carousel-control-next-icon" aria-hidden="true"></span>
           <span className="visually-hidden">Next</span>
         </button>
@@ -167,40 +151,6 @@ const Home = ({ setCartCount, showCart, setShowCart }) => {
           </div>
         ))}
       </div>
-
-      {/* Cart Modal/Page */}
-      {showCart && (
-        <div className="position-fixed top-0 start-0 w-100 h-100" style={{background: 'rgba(0,0,0,0.4)', zIndex: 2000}} onClick={() => setShowCart(false)}>
-          <div className="bg-white rounded shadow p-4 position-absolute" style={{top: '10%', left: '50%', transform: 'translateX(-50%)', minWidth: 320, maxWidth: 400}} onClick={e => e.stopPropagation()}>
-            <h4>Cart</h4>
-            {cart.length === 0 ? (
-              <p>Your cart is empty.</p>
-            ) : (
-              <ul className="list-group mb-3">
-                {cart.map((item, idx) => (
-                  <li className="list-group-item d-flex justify-content-between align-items-center" key={idx}>
-                    <span>{item.name}</span>
-                    <button className="btn btn-sm btn-danger" onClick={() => setCart(cart.filter((_, i) => i !== idx))}>Remove</button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <button className="btn btn-secondary w-100" onClick={() => setShowCart(false)}>Close</button>
-          </div>
-        </div>
-      )}
-
-      {/* Floating Cart Button (Blue) */}
-      <button
-        className="btn btn-primary position-fixed"
-        style={{ bottom: 30, right: 30, zIndex: 1050, borderRadius: '50%', width: 60, height: 60, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
-        onClick={() => setShowCart(true)}
-      >
-        <span role="img" aria-label="cart" style={{fontSize: 24}}>🛒</span>
-        {cart.length > 0 && (
-          <span className="badge bg-danger position-absolute top-0 start-100 translate-middle" style={{fontSize: 14}}>{cart.length}</span>
-        )}
-      </button>
     </div>
   );
 };
